@@ -1,0 +1,63 @@
+managed implementation in class zbp_i_salesorder_tp unique;
+strict ( 2 );
+
+define behavior for Z_I_SalesOrder_TP alias SalesOrder
+persistent table vbak
+lock master
+authorization master ( global )
+etag master CreatedAt
+{
+  create;
+  update;
+  delete;
+
+  field ( readonly ) SalesOrderID, GrossAmount;
+  field ( mandatory : create ) CustomerID, OrderType, SalesOrg;
+
+  action ( features : instance ) setOrderCompleted result [1] $self;
+
+  validation validateCustomer on save { field CustomerID; create; }
+  determination calculateTotalAmount on modify { field GrossAmount; }
+
+  association _Items { create; }
+
+  mapping for vbak
+  {
+    SalesOrderID = vbeln;
+    OrderType = auart;
+    SalesOrg = vkorg;
+    DistributionChannel = vtweg;
+    Division = spart;
+    CustomerID = kunnr;
+    GrossAmount = netwr;
+    CurrencyCode = waerk;
+    CreatedAt = erdat;
+    CreatedBy = ernam;
+  }
+}
+
+define behavior for Z_I_SalesOrderItem alias SalesOrderItem
+persistent table vbap
+lock dependent by _Header
+authorization dependent by _Header
+{
+  update;
+  delete;
+
+  field ( readonly ) SalesOrderID, ItemPosition;
+  field ( mandatory : create ) Material, TargetQuantity;
+
+  association _Header;
+
+  mapping for vbap
+  {
+    SalesOrderID = vbeln;
+    ItemPosition = posnr;
+    Material = matnr;
+    TargetQuantity = zmeng;
+    TargetQuantityUnit = zieme;
+    NetAmount = netwr;
+    CurrencyCode = waerk;
+    MaterialGroup = matkl;
+  }
+}

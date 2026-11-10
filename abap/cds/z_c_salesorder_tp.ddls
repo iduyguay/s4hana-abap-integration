@@ -1,0 +1,70 @@
+@EndUserText.label: 'Sales Order Consumption Projection'
+@AccessControl.authorizationCheck: #CHECK
+@Metadata.allowExtensions: true
+@Search.searchable: true
+
+define root view entity Z_C_SalesOrder_TP
+  as projection on Z_I_SalesOrder_TP
+{
+      @UI.facet: [
+        {
+          id: 'HeaderData',
+          purpose: #STANDARD,
+          type: #IDENTIFICATION_REFERENCE,
+          label: 'Order Details',
+          position: 10
+        },
+        {
+          id: 'ItemData',
+          purpose: #STANDARD,
+          type: #LINEITEM_REFERENCE,
+          label: 'Order Items',
+          position: 20,
+          targetElement: '_Items'
+        }
+      ]
+
+      @UI: {
+        lineItem: [{ position: 10, importance: #HIGH }],
+        identification: [{ position: 10 }]
+      }
+  key SalesOrderID,
+
+      @UI: {
+        lineItem: [{ position: 20, importance: #HIGH }],
+        selectionField: [{ position: 10 }],
+        identification: [{ position: 20 }]
+      }
+      @Search.defaultSearchElement: true
+      CustomerID,
+
+      @UI: {
+        lineItem: [{ position: 30, importance: #MEDIUM }],
+        identification: [{ position: 30 }]
+      }
+      CustomerName,
+
+      @UI: {
+        lineItem: [{ position: 40, importance: #HIGH }],
+        identification: [{ position: 40 }]
+      }
+      GrossAmount,
+
+      CurrencyCode,
+
+      @UI: {
+        lineItem: [{ position: 50, importance: #HIGH }],
+        selectionField: [{ position: 20 }],
+        identification: [{ position: 50 }]
+      }
+      OverallStatus,
+
+      @UI.identification: [{ position: 60 }]
+      CreatedAt,
+
+      @UI.identification: [{ position: 70 }]
+      CreatedBy,
+
+      _Items : redirected to composition child Z_I_SalesOrderItem,
+      _Customer
+}

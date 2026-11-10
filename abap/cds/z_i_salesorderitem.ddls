@@ -1,0 +1,35 @@
+@AbapCatalog.sqlViewName: 'ZISALESORDERITM'
+@AbapCatalog.compiler.compareFilter: true
+@AbapCatalog.preserveKey: true
+@AccessControl.authorizationCheck: #CHECK
+@EndUserText.label: 'Core Data Service: Sales Order Item'
+
+define view Z_I_SalesOrderItem
+  as select from vbap as Item
+  association to parent Z_I_SalesOrder_TP as _Header on $projection.SalesOrderID = _Header.SalesOrderID
+  association [0..1] to makt               as _Material on  $projection.Material = _Material.matnr
+                                                        and _Material.spras     = $session.system_language
+{
+  key Item.vbeln               as SalesOrderID,
+  key Item.posnr               as ItemPosition,
+
+      Item.matnr               as Material,
+      _Material.maktx          as MaterialDescription,
+
+      @Semantics.quantity.unitOfMeasure: 'TargetQuantityUnit'
+      Item.zmeng               as TargetQuantity,
+
+      @Semantics.unitOfMeasure: true
+      Item.zieme               as TargetQuantityUnit,
+
+      @Semantics.amount.currencyCode: 'CurrencyCode'
+      Item.netwr               as NetAmount,
+
+      @Semantics.currencyCode: true
+      Item.waerk               as CurrencyCode,
+
+      Item.matkl               as MaterialGroup,
+
+      _Header,
+      _Material
+}

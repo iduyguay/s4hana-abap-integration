@@ -1,0 +1,22 @@
+{
+  "HTML5Runtime_enabled": "true",
+  "init_data": {
+    "instance": {
+      "existing_destinations_policy": "update",
+      "destinations": [
+        {
+          "Name": "S4HANA_ODATA_SRV",
+          "Description": "Connection to SAP S/4HANA OData Endpoint",
+          "Type": "HTTP",
+          "URL": "https://s4hana-host.internal:443/sap/opu/odata4/sap/zui_salesorder_o4/srvd/sap/zui_salesorder_o4/0001",
+          "Authentication": "BasicAuthentication",
+          "ProxyType": "OnPremise",
+          "CloudConnectorLocationId": "",
+          "HTML5.DynamicDestination": "true",
+          "WebIDEUsage": "odata_gen",
+          "WebIDEEnabled": "true"
+        }
+      ]
+    }
+  }
+}

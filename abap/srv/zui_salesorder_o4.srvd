@@ -1,0 +1,5 @@
+@EndUserText.label: 'Service Definition for Sales Order OData V4'
+define service ZUI_SALESORDER_O4 {
+  expose Z_C_SalesOrder_TP as SalesOrder;
+  expose Z_I_SalesOrderItem as SalesOrderItem;
+}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+ <asx:values>
+  <DATA>
+   <MASTER_LANGUAGE>E</MASTER_LANGUAGE>
+   <STARTING_FOLDER>/abap/</STARTING_FOLDER>
+   <FOLDER_LOGIC>PREFIX</FOLDER_LOGIC>
+   <MAPPING>
+    <ITEM>
+     <OBJECT_TYPE>DDLS</OBJECT_TYPE>
+     <FOLDER>/cds/</FOLDER>
+    </ITEM>
+    <ITEM>
+     <OBJECT_TYPE>SRVD</OBJECT_TYPE>
+     <FOLDER>/srv/</FOLDER>
+    </ITEM>
+    <ITEM>
+     <OBJECT_TYPE>BDEF</OBJECT_TYPE>
+     <FOLDER>/bdef/</FOLDER>
+    </ITEM>
+    <ITEM>
+     <OBJECT_TYPE>CLAS</OBJECT_TYPE>
+     <FOLDER>/classes/</FOLDER>
+    </ITEM>
+   </MAPPING>
+  </DATA>
+ </asx:values>
+</asx:abap>

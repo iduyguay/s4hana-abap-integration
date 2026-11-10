@@ -1,0 +1,32 @@
+{
+  "xsappname": "sap-s4hana-abap-integration",
+  "tenant-mode": "dedicated",
+  "description": "Security profile for SAP S/4HANA & ABAP Integration BTP service",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.SalesOrderViewer",
+      "description": "Read-only access to Sales Orders via OData"
+    },
+    {
+      "name": "$XSAPPNAME.SalesOrderManager",
+      "description": "Create, modify, and process Sales Orders"
+    }
+  ],
+  "role-templates": [
+    {
+      "name": "SalesOrderViewerRole",
+      "description": "Viewer role for Sales Order Integration Service",
+      "scope-references": [
+        "$XSAPPNAME.SalesOrderViewer"
+      ]
+    },
+    {
+      "name": "SalesOrderManagerRole",
+      "description": "Manager role for Sales Order Integration Service",
+      "scope-references": [
+        "$XSAPPNAME.SalesOrderViewer",
+        "$XSAPPNAME.SalesOrderManager"
+      ]
+    }
+  ]
+}

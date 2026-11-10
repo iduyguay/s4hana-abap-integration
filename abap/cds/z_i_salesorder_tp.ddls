@@ -1,0 +1,60 @@
+@AbapCatalog.sqlViewName: 'ZISALESORDER'
+@AbapCatalog.compiler.compareFilter: true
+@AbapCatalog.preserveKey: true
+@AccessControl.authorizationCheck: #CHECK
+@EndUserText.label: 'Core Data Service: Sales Order Interface View'
+@Search.searchable: true
+
+define root view Z_I_SalesOrder_TP
+  as select from vbak as Header
+  composition [0..*] of Z_I_SalesOrderItem as _Items
+  association [0..1] to kna1 as _Customer on $projection.CustomerID = _Customer.kunnr
+{
+      @EndUserText.label: 'Sales Order ID'
+  key Header.vbeln as SalesOrderID,
+
+      @EndUserText.label: 'Order Type'
+      Header.auart as OrderType,
+
+      @EndUserText.label: 'Sales Organization'
+      Header.vkorg as SalesOrg,
+
+      @EndUserText.label: 'Distribution Channel'
+      Header.vtweg as DistributionChannel,
+
+      @EndUserText.label: 'Division'
+      Header.spart as Division,
+
+      @EndUserText.label: 'Customer ID'
+      @Search.defaultSearchElement: true
+      @Search.fuzzinessThreshold: 0.8
+      Header.kunnr as CustomerID,
+
+      @EndUserText.label: 'Customer Name'
+      _Customer.name1 as CustomerName,
+
+      @EndUserText.label: 'Gross Amount'
+      @Semantics.amount.currencyCode: 'CurrencyCode'
+      Header.netwr as GrossAmount,
+
+      @EndUserText.label: 'Currency'
+      @Semantics.currencyCode: true
+      Header.waerk as CurrencyCode,
+
+      @EndUserText.label: 'Order Status'
+      case Header.gbstk
+        when 'A' then 'Open'
+        when 'B' then 'In Process'
+        when 'C' then 'Completed'
+        else 'Pending'
+      end          as OverallStatus,
+
+      @EndUserText.label: 'Creation Date'
+      Header.erdat as CreatedAt,
+
+      @EndUserText.label: 'Created By'
+      Header.ernam as CreatedBy,
+
+      _Items,
+      _Customer
+}
