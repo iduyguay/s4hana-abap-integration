@@ -54,18 +54,27 @@ export class SapOdataClient {
     }
   ];
 
-  constructor(mockMode: boolean = process.env.SAP_MOCK_MODE === 'true' || true) {
+  constructor(mockMode: boolean = process.env.SAP_MOCK_MODE !== 'false') {
     this.mockMode = mockMode;
-    const baseURL = process.env.SAP_ODATA_BASE_URL || 'https://s4hana-host:443/sap/opu/odata4/sap/zui_salesorder_o4/srvd/sap/zui_salesorder_o4/0001';
+
+    const baseURL = process.env.SAP_ODATA_BASE_URL;
+    const username = process.env.SAP_USER;
+    const password = process.env.SAP_PASSWORD;
+
+    if (!mockMode && (!baseURL || !username || !password)) {
+      throw new Error(
+        'SAP_ODATA_BASE_URL, SAP_USER, and SAP_PASSWORD are required when SAP_MOCK_MODE=false.'
+      );
+    }
 
     this.client = axios.create({
       baseURL,
       auth: {
-        username: process.env.SAP_USER || 'DEVELOPER',
-        password: process.env.SAP_PASSWORD || 'Secret123'
+        username: username || '',
+        password: password || ''
       },
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json'
       },
       timeout: 10000
