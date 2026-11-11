@@ -1,4 +1,5 @@
-import { SapOdataClient } from '../src/services/sapOdataClient';
+import { odataKeySegment, odataStringLiteral, SapOdataClient } from '../src/services/sapOdataClient';
+import { parseSalesOrderQuery } from '../src/controllers/salesOrderController';
 
 describe('SAP OData Client Integration Suite', () => {
   let client: SapOdataClient;
@@ -56,5 +57,37 @@ describe('SAP OData Client Integration Suite', () => {
 
     const updated = await client.completeOrder(orderToComplete.SalesOrderID);
     expect(updated.OverallStatus).toBe('Completed');
+  });
+});
+
+describe('OData query and input boundaries', () => {
+  test('escapes apostrophes and encodes key segments', () => {
+    expect(odataStringLiteral("O'Brien")).toBe("'O''Brien'");
+    expect(odataKeySegment("O'Brien / 10")).toBe("%27O%27%27Brien%20%2F%2010%27");
+  });
+
+  test('uses bounded pagination defaults and rejects malformed query values', () => {
+    expect(parseSalesOrderQuery({} as any)).toEqual({
+      top: 20,
+      skip: 0,
+      status: undefined
+    });
+    expect(parseSalesOrderQuery({ top: '100', skip: '100000', status: ' Open ' } as any)).toEqual({
+      top: 100,
+      skip: 100000,
+      status: 'Open'
+    });
+    expect(parseSalesOrderQuery({ top: '101' } as any)).toBeNull();
+    expect(parseSalesOrderQuery({ skip: '-1' } as any)).toBeNull();
+    expect(parseSalesOrderQuery({ top: ['10', '20'] } as any)).toBeNull();
+    expect(parseSalesOrderQuery({ status: 'x'.repeat(41) } as any)).toBeNull();
+  });
+
+  test('rejects invalid page values in the client too', async () => {
+    const client = new SapOdataClient(true);
+    await expect(client.getSalesOrders(0)).rejects.toThrow(/top must be/);
+    await expect(client.getSalesOrders(101)).rejects.toThrow(/top must be/);
+    await expect(client.getSalesOrders(20, -1)).rejects.toThrow(/skip must be/);
+    await expect(client.getSalesOrders(20, 0, 'x'.repeat(41))).rejects.toThrow(/status must be/);
   });
 });
