@@ -1,5 +1,13 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
+export function odataStringLiteral(value: string): string {
+  return `'${value.replace(/'/g, "''")}'`;
+}
+
+export function odataKeySegment(value: string): string {
+  return encodeURIComponent(odataStringLiteral(value)).replace(/'/g, '%27');
+}
+
 export interface SalesOrderEntity {
   SalesOrderID: string;
   CustomerID: string;
@@ -108,10 +116,22 @@ export class SapOdataClient {
   }
 
   public async getSalesOrders(top: number = 20, skip: number = 0, statusFilter?: string): Promise<SalesOrderEntity[]> {
+    if (!Number.isInteger(top) || top < 1 || top > 100) {
+      throw new RangeError('top must be an integer between 1 and 100.');
+    }
+    if (!Number.isInteger(skip) || skip < 0 || skip > 100000) {
+      throw new RangeError('skip must be an integer between 0 and 100000.');
+    }
+
+    const normalizedStatus = statusFilter?.trim();
+    if (normalizedStatus && normalizedStatus.length > 40) {
+      throw new RangeError('status must be 40 characters or fewer.');
+    }
+
     if (this.mockMode) {
       let result = [...this.mockSalesOrders];
-      if (statusFilter) {
-        result = result.filter(o => o.OverallStatus.toLowerCase() === statusFilter.toLowerCase());
+      if (normalizedStatus) {
+        result = result.filter(o => o.OverallStatus.toLowerCase() === normalizedStatus.toLowerCase());
       }
       return result.slice(skip, skip + top);
     }
@@ -121,8 +141,8 @@ export class SapOdataClient {
       $skip: skip
     };
 
-    if (statusFilter) {
-      params.$filter = `OverallStatus eq '${statusFilter}'`;
+    if (normalizedStatus) {
+      params.$filter = `OverallStatus eq ${odataStringLiteral(normalizedStatus)}`;
     }
 
     const response = await this.client.get('/SalesOrder', { params });
@@ -136,7 +156,7 @@ export class SapOdataClient {
     }
 
     try {
-      const response = await this.client.get(`/SalesOrder('${salesOrderId}')`, {
+      const response = await this.client.get(`/SalesOrder(${odataKeySegment(salesOrderId)})`, {
         params: { $expand: '_Items' }
       });
       return response.data;
@@ -180,7 +200,7 @@ export class SapOdataClient {
 
     const token = await this.fetchCsrfToken();
     const response = await this.client.post(
-      `/SalesOrder('${salesOrderId}')/com.sap.gateway.srvd.zui_salesorder_o4.v0001.setOrderCompleted`,
+      `/SalesOrder(${odataKeySegment(salesOrderId)})/com.sap.gateway.srvd.zui_salesorder_o4.v0001.setOrderCompleted`,
       {},
       {
         headers: {
